@@ -1,7 +1,7 @@
 ---
 title: "Data Preparation"
 output: pdf_document
-date: "2023-05-26"
+date: "2023-05-29"
 ---
 
 ```{r setup, include=FALSE}
@@ -118,7 +118,7 @@ write.csv(chen_4b_fin, "chen-2019-4b.csv")
 
 ## Short Description of Data / Experiment
 
-Answers were given in a 2AFC response format.
+Each participant received two studytest lists, one mixed test and one blocked test, in random order. The study list was composed in a similar fashion for both conditions: 50 words and 50 faces were randomly selected from their respective pools and randomly ordered for each participant. Each item was studied for 3 s followed by a blank screen for 500 ms. The study was followed by a 45-s distractor task of simple addition. The test list contained 100 two alternative forced-choice (2AFC) test trials where participants were instructed to select the studied target from two choices, including the target and a randomly selected foil from the same stimulus type. The test was selfpaced and a 100-ms blank screen separated each trial.
 
 
 ## Clean Data
