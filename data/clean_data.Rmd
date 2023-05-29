@@ -1,0 +1,210 @@
+---
+title: "Data Preparation"
+output: pdf_document
+date: "2023-05-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Diffusion Model Analyses require certain response variables: subject number, response times in seconds, and whether the response was correct. 
+As we are using existing data sets, some other variables are important as well, depending on the respective data set and manipulation (see short descriptions).
+
+For usability reasons, variables will be renamed to follow one pattern:
+
+- subject number - sub
+
+- trial number - trial
+
+- correct response - correct
+
+- response time - RT
+
+- further important variables will be renamed arbitrarily
+
+
+
+# Chen 2019, Exp. 4a
+
+## Short Description of Data / Experiment
+
+Stimuli were presented in a matched form in study and test, and test lists were blocked by perceptual form (words and pictures were tested "separately"). Order of block was random and stimuli within a block were randomized. At test, participants were presented with an equal number of studied targets and unstudied foils randomly selected. Participants responded to the question "Have you studied this item?" by pressing a button, YES or NO, displayed below the test stimulus. All remaining details were identical to Experiments 1–3: Images and words were randomly intermixed during study.
+
+
+## Clean Data
+
+For our analyses with the diffusion model, we need the following variables:
+
+- **subject** (SubNum)
+
+- whether stimulus is a **word or an image** (StimType $\rightarrow$ stim)
+
+- whether stimulus is **old or new** (StimIndex $\rightarrow$ item)
+
+- participant's **response** (ResponseIndex $\rightarrow$ response)
+
+- whether response is **correct** (Accurate)
+
+- **response time** in seconds (RT)
+
+
+
+```{r, include = FALSE}
+# Load packages
+library(tidyverse)
+
+```
+
+
+```{r}
+# Load data
+chen_4a <- read.csv2("chen-2019_Exp4a Words vs Images_SIR_Test.csv")
+
+# Select and rename relevant variables
+chen_4a_fin <- chen_4a %>% select("SubNum", "TestTrial", "StimType", "StimIndex", "ResponseIndex", "Accurate", "RT") %>% rename("sub" = "SubNum", "trial" = "TestTrial", "stim" = "StimType", "correct" = "Accurate") %>% mutate(StimIndex = ifelse(StimIndex == "targ", "old", "new")) %>% mutate(ResponseIndex = ifelse(ResponseIndex == "targ", "old", "new")) %>% rename ("response" = "ResponseIndex", "item" = "StimIndex")
+
+# Show first rows
+head(chen_4a_fin)
+
+# Save new dataframe
+write.csv(chen_4a_fin, "chen-2019-4a.csv")
+
+```
+
+
+
+# Chen 2019, Exp. 4b
+
+## Short Description of Data / Experiment
+
+See 4a. Stimuli were images and audio recordings instead of images and words. Images and audio recordings were randomly intermixed during study.
+
+
+## Clean Data
+
+For our analyses with the diffusion model, we need the following variables:
+
+- **subject** (SubNum)
+
+- whether stimulus is a **word or an image** (StimType)
+
+- whether stimulus is **old or new** (StimIndex)
+
+- participant's **response** (ResponseIndex)
+
+- whether response is **correct** (Accurate)
+
+- **response time** in seconds (RT)
+
+
+```{r}
+# Load data
+chen_4b <- read.csv2("chen-2019_Exp4b Images vs Audio_SIR_Test.csv")
+
+# Select and rename relevant variables
+chen_4b_fin <- chen_4b %>% select("SubNum", "TestTrial", "StimType", "StimIndex", "ResponseIndex", "Accurate", "RT") %>% rename("sub" = "SubNum", "trial" = "TestTrial", "stim" = "StimType", "correct" = "Accurate") %>% mutate(StimIndex = ifelse(StimIndex == "targ", "old", "new")) %>% mutate(ResponseIndex = ifelse(ResponseIndex == "targ", "old", "new")) %>% rename ("response" = "ResponseIndex", "item" = "StimIndex")
+
+# Show first rows
+head(chen_4b_fin)
+
+# Save new dataframe
+write.csv(chen_4b_fin, "chen-2019-4b.csv")
+
+```
+
+
+# Criss 2017, Exp. 1
+
+## Short Description of Data / Experiment
+
+Answers were given in a 2AFC response format.
+
+
+## Clean Data
+
+For our analyses with the diffusion model, we need the following variables:
+
+- **subject** (subjectnum)
+
+- whether stimulus is **old or new** (wordtype)
+
+- whether response is **correct** (accuracy)
+
+- **response time** in seconds (RT)
+
+- whether stimulus is a **face or word** (faceorword; 0 = face, 1 = word,)
+
+- condition - 1=blocked (words then faces), 2=blocked (faces then words), 3=mixed
+
+
+
+
+```{r}
+# Load data
+criss <- read.csv2("criss-2017_expt1_osf.csv")
+
+# Select and rename relevant variables
+criss_fin <- criss %>% select("subjectnum", "testtrial", "condition", "faceorword", "accuracy", "RT") %>% rename("sub" = "subjectnum", "trial" = "testtrial", "correct" = "accuracy", "stim" = "faceorword")
+
+# Show first rows
+head(criss_fin)
+
+# Save new dataframe
+write.csv(criss_fin, "criss-2017.csv")
+
+```
+
+
+
+
+# Dedetas 2022
+
+## Short Description of Data / Experiment
+
+The experiment comprises two cycles. In each cycle, there were study and test phases which were separated with a distractor task. One cycle consisted of high-frequency words, and the other cycle consisted of low-frequency words. The order of word frequency lists was counterbalanced among participants: half of them received the high-frequency cycle first, followed by the low-frequency cycle while the other half received the low-frequency cycle first, followed by the high-frequency cycle.
+In the study phase, participants were presented with 75 words, and in the test phase, they were tested on 150 words. The test list included 75 study words (targets) with 75 new words (foils). Participants indicated whether items were old or new. The word frequency was manipulated among cycles, meaning that in a cycle, there were only high or only low-frequency words presented in both study and test phases. There was no mixed condition since presenting high and low frequent words in random order in a test could interfere with the OI pattern of the test list.
+
+
+## Clean Data
+
+For our analyses with the diffusion model, we need the following variables:
+
+- **subject** (SubID)
+
+- whether stimulus is **old or new** (wordtype)
+
+- participant's **response** (answertype)
+
+- whether response is **correct** (correct)
+
+- **response time** in seconds (RT)
+
+- whether presented words are **high or low frequency words** (condition)
+
+
+```{r}
+# Load data
+dedetas <- read.csv2("dedetas-2022_data.csv")
+
+# Select and rename relevant variables
+dedetas_fin <- dedetas %>% select("SubID", "condition", "testorder", "wordtype", "answertype", "correct", "RT") %>% rename("sub" = "SubID", "trial" = "testorder", "response" = "answertype", "item" = "wordtype")
+
+# Show first rows
+head(dedetas_fin)
+
+# Save new dataframe
+write.csv(dedetas_fin, "dedetas-2022.csv")
+
+```
+
+
+
+
+
+
+
+
+
+
+
