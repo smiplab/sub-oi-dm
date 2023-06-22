@@ -1,15 +1,7 @@
 library(tidyverse)
 library(magrittr)
 
-
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
-df_chen <- read_csv("chen-2019-4a.csv")
-
-df_chen <- df_chen %>% 
-  filter(stim == "word")
-
-#---------------------------------------------------------------
 
 is_outlier <- function(x) {
   lower <- boxplot(log(x))$stats[1]
@@ -17,24 +9,41 @@ is_outlier <- function(x) {
   return(!between(log(x), lower, upper))
 }
 
+#---------------------------------------------------------------#
+# 2AFC
+#---------------------------------------------------------------#
+df_chen <- read_csv("chen-2019-4a.csv") %>% 
+  filter(stim == "word") %>% 
+  rename(id = sub,
+         new_item = item,
+         new_resp = response,
+         rt = RT) %>% 
+  select(id, new_item, new_resp, correct, rt) %>% 
+  mutate(new_item = ifelse(new_item == "new", 1, 0),
+         new_resp = ifelse(new_resp == "new", 1, 0),
+         id = dense_rank(id)) %>% 
+  group_by(id) %>%
+  mutate(trial_filter = is_outlier(rt)) %>% 
+  ungroup() %>% 
+  filter(!trial_filter) %>% 
+  select(-trial_filter) %>% 
+  write_csv("../application/2afc_task/data/2afc_data.csv")
+
+#---------------------------------------------------------------#
+# YES NO TASK
+#---------------------------------------------------------------#
 df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>% 
   filter(condition == "hehe") %>% 
-  select(code, time, correct) %>% 
+  select(code, oldPic, answer, correct, time) %>% 
   rename(id = code,
+         correct_resp = oldPic,
+         resp = answer,
          rt = time) %>% 
   mutate(rt = rt / 1000,
          id = dense_rank(id)) %>% 
   group_by(id) %>% 
   mutate(trial_filter = is_outlier(rt)) %>% 
   ungroup() %>% 
-  mutate(rt = ifelse(correct == 1, rt, -rt)) %>% 
   filter(!trial_filter) %>% 
-  select(-correct,
-         -trial_filter)
-
-
-
-
-
-
-  
+  select(-trial_filter) %>% 
+  write_csv("../application/yes_no_task//data/yes_no_data.csv")
