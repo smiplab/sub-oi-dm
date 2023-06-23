@@ -33,7 +33,8 @@ df_chen <- read_csv("chen-2019-4a.csv") %>%
 # YES NO TASK
 #---------------------------------------------------------------#
 df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>% 
-  filter(condition == "hehe") %>% 
+  filter(condition == "hehe",
+         type == "hetero") %>% 
   select(code, oldPic, answer, correct, time) %>% 
   rename(id = code,
          correct_resp = oldPic,
@@ -41,9 +42,13 @@ df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>%
          rt = time) %>% 
   mutate(rt = rt / 1000,
          id = dense_rank(id)) %>% 
-  group_by(id) %>% 
-  mutate(trial_filter = is_outlier(rt)) %>% 
-  ungroup() %>% 
-  filter(!trial_filter) %>% 
-  select(-trial_filter) %>% 
+  # group_by(id) %>% 
+  # mutate(trial_filter = is_outlier(rt)) %>% 
+  # ungroup() %>% 
+  # filter(!trial_filter) %>% 
+  # select(-trial_filter) %>% 
   write_csv("../application/yes_no_task//data/yes_no_data.csv")
+
+summary <- df_schnuerch %>% 
+  group_by(id) %>% 
+  summarise(n = n())
