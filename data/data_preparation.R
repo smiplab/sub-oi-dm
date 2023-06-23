@@ -23,9 +23,9 @@ df_chen <- read_csv("chen-2019-4a.csv") %>%
          new_resp = ifelse(new_resp == "new", 1, 0),
          id = dense_rank(id)) %>% 
   group_by(id) %>%
-  mutate(rt = ifelse(trial_filter, NA, rt)) %>%
+  mutate(trial_filter = is_outlier(rt)) %>% 
   ungroup() %>% 
-  filter(!trial_filter) %>% 
+  mutate(rt = ifelse(trial_filter, NA, rt)) %>%
   select(-trial_filter) %>% 
   write_csv("../application/2afc_task/data/2afc_data.csv")
 
