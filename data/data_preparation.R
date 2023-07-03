@@ -13,7 +13,14 @@ is_outlier <- function(x) {
 # YES NO TASK
 #---------------------------------------------------------------#
 df_chen <- read_csv("chen-2019-4a.csv") %>% 
-  filter(stim == "word") %>% 
+  filter(stim == "word")
+
+df_chen$sub[df_chen$sub == 29][1:112] <- 1234
+df_chen$sub[df_chen$sub == 34][1:112] <- 4321
+
+sum <- df_chen %>% group_by(sub) %>% summarise(N = n())
+
+df_chen %<>% 
   rename(id = sub,
          new_item = item,
          new_resp = response,
@@ -47,7 +54,7 @@ df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>%
   ungroup() %>%
   mutate(rt = ifelse(trial_filter, NA, rt)) %>%
   select(-trial_filter) %>%
-  write_csv("../application/yes_no_task//data/2afc.csv")
+  write_csv("../application/yes_no_task/data/2afc_data.csv")
 
 summary <- df_schnuerch %>% 
   drop_na(rt) %>% 

@@ -1,5 +1,3 @@
-import numpy as np
-
 default_bayesflow_settings = {
     "lstm1_hidden_units": 512,
     "lstm2_hidden_units": 128,
