@@ -10,7 +10,7 @@ is_outlier <- function(x) {
 }
 
 #---------------------------------------------------------------#
-# 2AFC
+# YES NO TASK
 #---------------------------------------------------------------#
 df_chen <- read_csv("chen-2019-4a.csv") %>% 
   filter(stim == "word") %>% 
@@ -27,10 +27,10 @@ df_chen <- read_csv("chen-2019-4a.csv") %>%
   ungroup() %>% 
   mutate(rt = ifelse(trial_filter, NA, rt)) %>%
   select(-trial_filter) %>% 
-  write_csv("../application/2afc_task/data/2afc_data.csv")
+  write_csv("../application/2afc_task/data/yes_no_data.csv")
 
 #---------------------------------------------------------------#
-# YES NO TASK
+# 2AFC
 #---------------------------------------------------------------#
 df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>% 
   filter(condition == "hehe",
@@ -47,7 +47,7 @@ df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>%
   ungroup() %>%
   mutate(rt = ifelse(trial_filter, NA, rt)) %>%
   select(-trial_filter) %>%
-  write_csv("../application/yes_no_task//data/yes_no_data.csv")
+  write_csv("../application/yes_no_task//data/2afc.csv")
 
 summary <- df_schnuerch %>% 
   drop_na(rt) %>% 
