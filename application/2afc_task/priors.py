@@ -50,7 +50,7 @@ def sample_random_walk(sigma, num_steps=80, lower_bounds=default_lower_bounds, u
         The standard deviations of the random walk process.
     num_steps       : int, optional, default: 80
         The number of time steps to take for the random walk. Default
-        corresponds to the maximal number of trials in the yes_no dataset.
+        corresponds to the maximal number of trials in the 2afc dataset.
     lower_bounds    : tuple, optional, default: ``configuration.default_lower_bounds``
         The minimum values the parameters can take.
     upper_bound     : tuple, optional, default: ``configuration.default_upper_bounds``
