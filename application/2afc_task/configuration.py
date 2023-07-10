@@ -1,8 +1,7 @@
 default_bayesflow_settings = {
     "lstm1_hidden_units": 512,
-    "lstm2_hidden_units": 128,
-    "transformer_template_dim": 128,
-    "transformer_summary_dim": 32,
+    "lstm2_hidden_units": 256,
+    "lstm3_hidden_units": 128,
     "trainer": {
         "checkpoint_path": "../checkpoints/2afc_task",
         "max_to_keep": 1,
@@ -28,4 +27,4 @@ default_prior_settings = {
 }
 
 default_lower_bounds = (0.0, 0.0, 0.0)
-default_upper_bounds = (8.0, 6.0, 4.0)
+default_upper_bounds = (6.0, 4.0, 2.0)

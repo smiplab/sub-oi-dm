@@ -2,9 +2,11 @@ from abc import ABC, abstractmethod
 from functools import partial
 import numpy as np
 import bayesflow as bf
+from scipy.stats import halfnorm
 
 from likelihoods import sample_random_walk_diffusion_process
 from priors import sample_scale, sample_random_walk
+from configuration import default_prior_settings
 
 class DiffusionModel(ABC):
     """An interface for running a standardized simulated experiment."""
@@ -37,8 +39,14 @@ class RandomWalkDiffusion(DiffusionModel):
             An optional random number generator to use, if fixing the seed locally.
         """
 
-        self.hyper_prior_mean = 0.04
-        self.hyper_prior_std = 0.04
+        self.hyper_prior_mean = halfnorm(
+            loc=default_prior_settings['scale_loc'],
+            scale=default_prior_settings['scale_scale']
+            ).mean()
+        self.hyper_prior_std = halfnorm(
+            loc=default_prior_settings['scale_loc'],
+            scale=default_prior_settings['scale_scale']
+            ).std()
         self.local_prior_means = np.array([1.8, 1.5, 0.4])
         self.local_prior_stds = np.array([1.2, 1.0, 0.3])
 

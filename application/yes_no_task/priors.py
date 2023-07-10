@@ -36,7 +36,7 @@ def sample_ddm_params():
     v_2 = truncnorm.rvs(a=-np.inf, b=0.0, loc=0.0, scale=2.5)
     a = truncnorm.rvs(a=0, b=np.inf, loc=0.0, scale=2.5)
     tau = truncnorm.rvs(a=0, b=np.inf, loc=0.0, scale=1)
-    bias = beta.rvs(a=25, b=25)
+    bias = beta.rvs(a=50, b=50)
 
     return np.concatenate(([v_1], [v_2], [a], [tau], [bias]))
 
