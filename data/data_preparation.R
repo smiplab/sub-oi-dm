@@ -57,6 +57,6 @@ df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>%
   write_csv("../application/yes_no_task/data/2afc_data.csv")
 
 summary <- df_schnuerch %>% 
-  drop_na(rt) %>% 
   group_by(id) %>% 
-  summarise(n = n())
+  summarise(n = n(),
+            rt_mean = mean(rt, na.rm = T))
