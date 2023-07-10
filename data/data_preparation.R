@@ -13,6 +13,37 @@ is_outlier <- function(x) {
 # YES NO TASK
 #---------------------------------------------------------------#
 df_chen <- read_csv("chen-2019-4a.csv") %>% 
+  filter(stim == "pict")
+
+df_chen$sub[df_chen$sub == 29][1:112] <- 1234
+df_chen$sub[df_chen$sub == 34][1:112] <- 4321
+
+sum <- df_chen %>% group_by(sub) %>% summarise(N = n())
+
+df_chen %<>% 
+  rename(id = sub,
+         new_item = item,
+         new_resp = response,
+         rt = RT) %>% 
+  select(id, new_item, new_resp, correct, rt) %>% 
+  mutate(new_item = ifelse(new_item == "new", 1, 0),
+         new_resp = ifelse(new_resp == "new", 1, 0)) %>% 
+  group_by(id) %>%
+  mutate(trial_filter = is_outlier(rt)) %>% 
+  ungroup() %>% 
+  mutate(rt = ifelse(trial_filter, NA, rt)) %>%
+  select(-trial_filter) %>% 
+  filter(!(id %in% c(51, 52, 101))) %>% 
+  mutate(id = dense_rank(id)) %>% 
+  group_by(id) %>% 
+  mutate(trial = 1:112) %>% 
+  arrange(id) %>% 
+  write_csv("../application/yes_no_task/data/yes_no_data_picture.csv")
+
+#---------------------------------------------------------------#
+# YES NO TASK
+#---------------------------------------------------------------#
+df_chen <- read_csv("chen-2019-4a.csv") %>% 
   filter(stim == "word")
 
 df_chen$sub[df_chen$sub == 29][1:112] <- 1234
@@ -27,14 +58,22 @@ df_chen %<>%
          rt = RT) %>% 
   select(id, new_item, new_resp, correct, rt) %>% 
   mutate(new_item = ifelse(new_item == "new", 1, 0),
-         new_resp = ifelse(new_resp == "new", 1, 0),
-         id = dense_rank(id)) %>% 
+         new_resp = ifelse(new_resp == "new", 1, 0)) %>% 
   group_by(id) %>%
   mutate(trial_filter = is_outlier(rt)) %>% 
   ungroup() %>% 
   mutate(rt = ifelse(trial_filter, NA, rt)) %>%
   select(-trial_filter) %>% 
-  write_csv("../application/2afc_task/data/yes_no_data.csv")
+  filter(!(id %in% c(51, 52, 101))) %>% 
+  mutate(id = dense_rank(id)) %>% 
+  group_by(id) %>% 
+  mutate(trial = 1:112) %>% 
+  arrange(id) %>% 
+  write_csv("../application/yes_no_task/data/yes_no_data_words.csv")
+
+sumsum <- df_chen %>% 
+  group_by(id) %>% 
+  summarise(mean_rt = mean(rt, na.rm = T))
 
 #---------------------------------------------------------------#
 # 2AFC
@@ -54,7 +93,7 @@ df_schnuerch <- read_csv("schnuerch-BA_oi_data.csv") %>%
   ungroup() %>%
   mutate(rt = ifelse(trial_filter, NA, rt)) %>%
   select(-trial_filter) %>%
-  write_csv("../application/yes_no_task/data/2afc_data.csv")
+  write_csv("../application/2afc_task/data/2afc_data.csv")
 
 summary <- df_schnuerch %>% 
   group_by(id) %>% 
