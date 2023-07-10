@@ -47,8 +47,8 @@ class RandomWalkDiffusion(DiffusionModel):
             loc=default_prior_settings['scale_loc'],
             scale=default_prior_settings['scale_scale']
             ).std()
-        self.local_prior_means = np.array([1.8, 1.5, 0.4])
-        self.local_prior_stds = np.array([1.2, 1.0, 0.3])
+        self.local_prior_means = np.array([2.0, 1.5, 0.7])
+        self.local_prior_stds = np.array([1.5, 1.2, 0.5])
 
         # Store local RNG instance
         if rng is None:
@@ -120,7 +120,7 @@ class RandomWalkDiffusion(DiffusionModel):
         if transform:
             out_dict = dict(
                 local_parameters=(theta_t - self.local_prior_means) / self.local_prior_stds,
-                hyper_parameters=(scales - self.hyper_prior_mean) / self.hyper_prior_std,
+                hyper_parameters=((scales - self.hyper_prior_mean) / self.hyper_prior_std).astype(np.float32),
                 summary_conditions=rt,
             )
         else:
