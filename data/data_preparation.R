@@ -40,6 +40,8 @@ df_chen %<>%
   arrange(id) %>% 
   write_csv("../application/yes_no_task/data/yes_no_data_picture.csv")
 
+sum <- df_chen %>% group_by(id) %>% summarise(N = n())
+
 #---------------------------------------------------------------#
 # YES NO TASK
 #---------------------------------------------------------------#
