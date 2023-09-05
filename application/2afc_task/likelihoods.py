@@ -70,8 +70,51 @@ def sample_random_walk_diffusion_process(theta_t, beta=0.5, dt=0.001, s=1.0, max
 
     num_steps = theta_t.shape[0]
     rt = np.zeros(num_steps)
+    
     for t in range(num_steps):
         rt[t] = _sample_diffusion_trial(
             theta_t[t, 0], theta_t[t, 1], theta_t[t, 2], beta,
             dt=dt, s=s, max_iter=max_iter)
+    return rt
+
+@njit
+def sample_random_walk_mixture_diffusion_process(theta_t, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
+    """Generates a single simulation from a mixture model. Response times are generated as a guess or as a 
+    non-stationary Diffusion decision process with parameters following a random walk. Probability to guess
+    also follows a random walk.
+
+    Parameters:
+    -----------
+    theta_t : np.ndarray of shape (theta_t, 4)
+        The trajectory of the 3 latent DDM parameters, v, a, tau, and the trajectory of the probability of guessing, p.
+    beta     : float, optional, default: 0.5
+        The starting point parameter. The default corresponds to
+        no a priori bias.
+    dt       : float, optional, default: 0.001
+        Time resolution of the process. Default corresponds to
+        a precision of 1 millisecond.
+    s        : float, optional, default: 1
+        Scaling factor of the Wiener noise.
+    max_iter : int, optional, default: 1e5
+        Maximum iterations of the process. Default corresponds to
+        100 seconds.
+
+    Returns:
+    --------
+    rt : np.array of shape (num_steps, )
+        Response time samples from the Random Walk Mixture Diffusion decision process.
+        Reaching the lower boundary results in negative rt's.
+    """
+
+    num_steps = theta_t.shape[0]
+    rt = np.zeros(num_steps)
+
+    for t in range(num_steps):
+        guessing_state = np.random.binomial(1, theta_t[t, 3])
+        if guessing_state == 1:
+            rt[t] = np.random.uniform(0, 300)
+        else:
+            rt[t] = _sample_diffusion_trial(
+                theta_t[t, 0], theta_t[t, 1], theta_t[t, 2], beta,
+                dt=dt, s=s, max_iter=max_iter)
     return rt

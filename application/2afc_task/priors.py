@@ -1,10 +1,10 @@
-from scipy.stats import halfnorm
+from scipy.stats import halfnorm, beta
 import numpy as np
 
 from configuration import default_prior_settings, default_lower_bounds, default_upper_bounds
 
 def sample_scale(loc=default_prior_settings['scale_loc'], scale=default_prior_settings['scale_scale']):
-    """Generates 3 random draws from a half-normal prior over the
+    """Generates 4 random draws from a half-normal prior over the
     scale of the random walk.
 
     Parameters:
@@ -41,6 +41,30 @@ def sample_ddm_params(loc=default_prior_settings['ddm_loc'], scale=default_prior
 
     return halfnorm.rvs(loc=loc, scale=scale)
 
+def sample_mixture_ddm_params(loc=default_prior_settings['ddm_loc'], scale=default_prior_settings['ddm_scale']):
+    """Generates random draws from a half-normal prior over the
+    diffusion decision parameters, v, a, tau.
+
+    Parameters:
+    -----------
+    loc    : tuple, optional, default: ``configuration.default_prior_settings.ddm_loc``
+        The location parameters of the half-normal distribution.
+    scale  : tuple, optional, default: ``configuration.default_prior_settings.ddm_scale``
+        The scale parameters of the half-normal distribution.
+
+    Returns:
+    --------
+    ddm_params : np.array
+        The randomly drawn DDM parameters, v, a, tau.
+    """
+
+    diffusion_params = halfnorm.rvs(loc=loc[:3], scale=scale[:3])
+    guessing_param = [beta.rvs(a=loc[3], b=scale[3])]
+    
+    params = np.concatenate((diffusion_params, guessing_param), dtype=float)
+
+    return params
+
 def sample_random_walk(sigma, num_steps=80, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.
 
@@ -68,10 +92,10 @@ def sample_random_walk(sigma, num_steps=80, lower_bounds=default_lower_bounds, u
     if rng is None:
         rng = np.random.default_rng()
     # Sample initial parameters
-    theta_t = np.zeros((num_steps, 3))
+    theta_t = np.zeros((num_steps, 4))
     theta_t[0] = sample_ddm_params()
     # Run random walk from initial
-    z = rng.normal(size=(num_steps - 1, 3))
+    z = rng.normal(size=(num_steps - 1, 4))
     for t in range(1, num_steps):
         theta_t[t] = np.clip(
             theta_t[t - 1] + sigma * z[t - 1], lower_bounds, upper_bounds
