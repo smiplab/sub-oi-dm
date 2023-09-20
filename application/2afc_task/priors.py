@@ -61,7 +61,7 @@ def sample_mixture_ddm_params(loc=default_prior_settings['ddm_loc'], scale=defau
     diffusion_params = halfnorm.rvs(loc=loc[:3], scale=scale[:3])
     guessing_param = [beta.rvs(a=loc[3], b=scale[3])]
     
-    params = np.concatenate((diffusion_params, guessing_param), dtype=float)
+    params = np.concatenate((diffusion_params, guessing_param), dtype=np.float32)
 
     return params
 

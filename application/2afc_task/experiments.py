@@ -111,7 +111,7 @@ class RandomWalkMixtureDiffusionExperiment(Experiment):
     """Wrapper for estimating the Non-Stationary Diffusion Decision Model with 
     a Gaussian random walk transition model neural superstatistics method."""
 
-    def __init__(self, model, config=default_bayesflow_settings):
+    def __init__(self, model, checkpoint_path=None, config=default_bayesflow_settings):
         """Creates an instance of the model with given configuration. When used in a BayesFlow pipeline,
         only the attribute ``self.generator`` and the method ``self.configure`` should be used.
 
@@ -181,6 +181,7 @@ class RandomWalkMixtureDiffusionExperiment(Experiment):
             amortizer=self.amortizer,
             generative_model=self.model.generate,
             configurator=self.model.configure,
+            checkpoint_path=checkpoint_path,
             **config.get("trainer")
         )
 
