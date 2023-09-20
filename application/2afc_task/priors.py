@@ -65,7 +65,7 @@ def sample_mixture_ddm_params(loc=default_prior_settings['ddm_loc'], scale=defau
 
     return params
 
-def sample_random_walk(sigma, num_steps=80, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
+def sample_random_walk(sigma, init_fun, num_steps=80, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.
 
     Parameters:
@@ -93,7 +93,7 @@ def sample_random_walk(sigma, num_steps=80, lower_bounds=default_lower_bounds, u
         rng = np.random.default_rng()
     # Sample initial parameters
     theta_t = np.zeros((num_steps, 4))
-    theta_t[0] = sample_ddm_params()
+    theta_t[0] = init_fun()    # changed to init_fun
     # Run random walk from initial
     z = rng.normal(size=(num_steps - 1, 4))
     for t in range(1, num_steps):

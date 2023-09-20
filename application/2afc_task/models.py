@@ -5,7 +5,7 @@ import bayesflow as bf
 from scipy.stats import halfnorm
 
 from likelihoods import sample_random_walk_mixture_diffusion_process    # replaced with newly written function for mixture model
-from priors import sample_scale, sample_random_walk
+from priors import sample_scale, sample_random_walk, sample_mixture_ddm_params
 from configuration import default_prior_settings
 
 class DiffusionModel(ABC):
@@ -168,7 +168,7 @@ class RandomWalkMixtureDiffusion(DiffusionModel):
         # Create prior wrapper
         self.prior = bf.simulation.TwoLevelPrior(
             hyper_prior_fun=sample_scale,
-            local_prior_fun=partial(sample_random_walk, rng=self._rng),
+            local_prior_fun=partial(sample_random_walk, init_fun=sample_mixture_ddm_params, rng=self._rng), # added init_fun argument
         )
 
         # Create simulator wrapper
