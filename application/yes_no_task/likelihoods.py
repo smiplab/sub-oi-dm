@@ -73,3 +73,43 @@ def sample_random_walk_diffusion_process(theta_t, context, dt=0.001, s=1.0, max_
             theta_t[t, context[t]], theta_t[t, 2], theta_t[t, 3], theta_t[t, 4],
             dt=dt, s=s, max_iter=max_iter)
     return rt
+
+@njit
+def sample_random_walk_mixture_diffusion_process(theta_t, context, dt=0.001, s=1.0, max_iter=1e5):
+    """Generates a single simulation from a non-stationary
+    Diffusion decision process with a parameters following a random walk.
+
+    Parameters:
+    -----------
+    theta_t  : np.ndarray of shape (num_steps, 5)
+        The trajectory of the 5 latent DDM parameters, v_1, v_2, a, tau, bias.
+    context  : np.ndarray of shape (num_steps, 1)
+        The experimental context which determines if v_1 or v_2 should be used.
+    dt       : float, optional, default: 0.001
+        Time resolution of the process. Default corresponds to
+        a precision of 1 millisecond.
+    s        : float, optional, default: 1
+        Scaling factor of the Wiener noise.
+    max_iter : int, optional, default: 1e5
+        Maximum iterations of the process. Default corresponds to
+        100 seconds.
+
+    Returns:
+    --------
+    rt : np.array of shape (num_steps, )
+        Response time samples from the Random Walk Diffusion decision process.
+        Reaching the lower boundary results in negative rt's.
+    """
+    
+    num_steps = theta_t.shape[0]
+    rt = np.zeros(num_steps)
+
+    for t in range(num_steps):
+        guessing_state = np.random.binomial(1, theta_t[t, 5])
+        if guessing_state == 1:
+            rt[t] = np.random.uniform(0, 300)
+        else:
+            rt[t] = _sample_diffusion_trial(
+                theta_t[t, context[t]], theta_t[t, 2], theta_t[t, 3], theta_t[t, 4],
+                dt=dt, s=s, max_iter=max_iter)
+    return rt

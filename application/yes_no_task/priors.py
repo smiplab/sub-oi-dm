@@ -40,6 +40,25 @@ def sample_ddm_params():
 
     return np.concatenate(([v_1], [v_2], [a], [tau], [bias]))
 
+def sample_mixture_ddm_params():
+    """Generates random draws from truncated normal and beta priors over the
+    diffusion decision parameters, v_1, v_2, a, tau, bias, p.
+
+    Returns:
+    --------
+    ddm_params : np.array
+        The randomly drawn DDM parameters, v_1, v_2, a, tau, bias.
+    """
+
+    v_1 = truncnorm.rvs(a=0, b=np.inf, loc=0.0, scale=2.5)
+    v_2 = truncnorm.rvs(a=-np.inf, b=0.0, loc=0.0, scale=2.5)
+    a = truncnorm.rvs(a=0, b=np.inf, loc=0.0, scale=2.5)
+    tau = truncnorm.rvs(a=0, b=np.inf, loc=0.0, scale=1)
+    bias = beta.rvs(a=50, b=50)
+    p = beta.rvs(a=1, b=30) # added --> do i need different values?
+
+    return np.concatenate(([v_1], [v_2], [a], [tau], [bias], [p]))
+
 def sample_random_walk(sigma, num_steps=112, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.
 
@@ -67,10 +86,10 @@ def sample_random_walk(sigma, num_steps=112, lower_bounds=default_lower_bounds, 
     if rng is None:
         rng = np.random.default_rng()
     # Sample initial parameters
-    theta_t = np.zeros((num_steps, 5))
-    theta_t[0] = sample_ddm_params()
+    theta_t = np.zeros((num_steps, 6))
+    theta_t[0] = sample_mixture_ddm_params()
     # Run random walk from initial
-    z = rng.normal(size=(num_steps - 1, 5))
+    z = rng.normal(size=(num_steps - 1, 6))
     for t in range(1, num_steps):
         theta_t[t] = np.clip(
             theta_t[t - 1] + sigma * z[t - 1], lower_bounds, upper_bounds

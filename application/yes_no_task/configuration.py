@@ -19,9 +19,9 @@ default_bayesflow_settings = {
 }
 
 default_prior_settings = {
-    "scale_loc": (0.0, 0.0, 0.0, 0.0, 0.0),
-    "scale_scale": (0.1, 0.1, 0.1, 0.01, 0.01)
+    "scale_loc": (0.0, 0.0, 0.0, 0.0, 0.0, 0.0),       # added value like in 2afc
+    "scale_scale": (0.1, 0.1, 0.1, 0.01, 0.01, 0.01)   # added value like in 2afc
 }
 
-default_lower_bounds = (0.0, -6.0, 0.0, 0.0, 0.0)
-default_upper_bounds = (6.0, 0.0, 4.0, 2.0, 1.0)
+default_lower_bounds = (0.0, -6.0, 0.0, 0.0, 0.0, 0.0) # added lower bound 0 for guessing probability
+default_upper_bounds = (6.0, 0.0, 4.0, 2.0, 1.0, 1.0)  # added upper bound 1 for guessing probability
