@@ -3,7 +3,6 @@ default_bayesflow_settings = {
     "lstm2_hidden_units": 256,
     "lstm3_hidden_units": 128,
     "trainer": {
-        "checkpoint_path": "../checkpoints/yes_no_task",
         "max_to_keep": 1,
         "default_lr": 5e-4,
         "memory": False,
