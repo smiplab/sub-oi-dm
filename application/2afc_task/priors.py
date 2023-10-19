@@ -54,14 +54,17 @@ def sample_mixture_ddm_params(loc=default_prior_settings['ddm_loc'], scale=defau
 
     Returns:
     --------
-    ddm_params : np.array
+    diffusion_params : np.array
         The randomly drawn DDM parameters, v, a, tau.
+    probability      : np.array
+        The randomly drawn probability to guess, p.
     """
 
     diffusion_params = halfnorm.rvs(loc=loc[:3], scale=scale[:3])
-    guessing_param = [beta.rvs(a=loc[3], b=scale[3])]
+    probability = [beta.rvs(a=loc[3], b=scale[3])]
+    guessing_rt_params = halfnorm.rvs(loc=loc[4:], scale=scale[4:])
     
-    params = np.concatenate((diffusion_params, guessing_param), dtype=np.float32)
+    params = np.concatenate((diffusion_params, probability), dtype=np.float32)
 
     return params
 
@@ -87,17 +90,19 @@ def sample_random_walk(sigma, init_fun, num_steps=80, lower_bounds=default_lower
     theta_t : np.ndarray of shape (num_steps, num_params)
         The array of time-varying parameters
     """
-
+    
     # Configure RNG, if not provided
     if rng is None:
         rng = np.random.default_rng()
     # Sample initial parameters
     theta_t = np.zeros((num_steps, 4))
-    theta_t[0] = init_fun()    # changed to init_fun
+    theta_t[0] = init_fun()
     # Run random walk from initial
     z = rng.normal(size=(num_steps - 1, 4))
     for t in range(1, num_steps):
-        theta_t[t] = np.clip(
-            theta_t[t - 1] + sigma * z[t - 1], lower_bounds, upper_bounds
+        theta_t[t, :4] = np.clip(
+            theta_t[t - 1, :4] + sigma * z[t - 1], lower_bounds, upper_bounds
         )
+    for t in range(1, num_steps):
+        theta_t[t, 4:] = theta_t[0, 4:] 
     return theta_t

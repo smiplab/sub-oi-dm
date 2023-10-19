@@ -157,7 +157,7 @@ class RandomWalkMixtureDiffusion(DiffusionModel):
             loc=default_prior_settings['scale_loc'],
             scale=default_prior_settings['scale_scale']
             ).std()
-        self.local_prior_means = np.array([2.0, 2.0, 0.8, 0.05])  # previous values: [2.0, 1.5, 0.7, ]
+        self.local_prior_means = np.array([2.0, 2.0, 0.8, 0.05])  # previous values: [2.0, 1.5, 0.7, ] 
         self.local_prior_stds = np.array([1.5, 1.5, 0.6, 0.05])   # previous values: [1.5, 1.2, 0.5, ]
 
         # Store local RNG instance

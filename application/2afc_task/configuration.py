@@ -18,11 +18,14 @@ default_bayesflow_settings = {
 }
 
 default_prior_settings = {
-    # v, a, tau, p
-    "ddm_loc": (0.0, 0.0, 0.0, 1.0),        # TO DO: test values for p - trial and error - remember: a and b of beta distribution
-    "ddm_scale": (2.5, 2.5, 1.0, 30),       # TO DO: test values for p - trial and error - remember: a and b of beta distribution
-    "scale_loc": (0.0, 0.0, 0.0, 0.0),      # TO DO: test values for p - trial and error
-    "scale_scale": (0.1, 0.1, 0.01, 0.01)   # TO DO: test values for p - trial and error
+    # dynamic parameters: v, a, tau, p
+    "ddm_loc": (0.0, 0.0, 0.0, 1.0, 0.0, 0.3),        # a and b of beta distribution (for p)
+    "ddm_scale": (2.5, 2.5, 1.0, 30, 0.0, 0.1),       # a and b of beta distribution (for p)
+    "scale_loc": (0.0, 0.0, 0.0, 0.0),           
+    "scale_scale": (0.1, 0.1, 0.01, 0.01),
+    # guessig (stationary) parameters: mu, sigma
+    "guess_loc": (0.0, 0.3),                
+    "guess_scale": (0.0, 0.1)
 }
 
 default_lower_bounds = (0.0, 0.0, 0.0, 0.0)
