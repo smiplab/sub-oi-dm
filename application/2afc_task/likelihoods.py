@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
 from configuration import default_prior_settings
-from scipy.stats import halfnorm
+from scipy.stats import halfnorm, truncnorm
 
 @njit
 def _sample_diffusion_trial(v, a, tau, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
@@ -80,16 +80,16 @@ def sample_random_walk_diffusion_process(theta_t, beta=0.5, dt=0.001, s=1.0, max
     return rt
 
 @njit
-def sample_random_walk_mixture_diffusion_process(theta_t, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
-    # loc=default_prior_settings['guess_loc'], scale=default_prior_settings['guess_scale']
+def sample_random_walk_mixture_diffusion_process(params, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single simulation from a mixture model. Response times are generated as a guess or as a 
     non-stationary Diffusion decision process with parameters following a random walk. Probability to guess
     also follows a random walk.
 
     Parameters:
     -----------
-    theta_t : np.ndarray of shape (theta_t, 4)
-        The trajectory of the 3 latent DDM parameters, v, a, tau, and the trajectory of the probability of guessing, p.
+    params   : tuple of shape (theta_t, gamma)
+        theta_t: The trajectory of the 3 latent DDM parameters, v, a, tau, and the trajectory of the probability of guessing, p.
+        gamma  : The prior draws for the guessing rt distribution.
     beta     : float, optional, default: 0.5
         The starting point parameter. The default corresponds to
         no a priori bias.
@@ -109,24 +109,19 @@ def sample_random_walk_mixture_diffusion_process(theta_t, beta=0.5, dt=0.001, s=
         Reaching the lower boundary results in negative rt's.
     """
 
-    num_steps = theta_t.shape[0]
+    num_steps = params[0][0].shape
     rt = np.zeros(num_steps)
-    
-    # guessing_distribution_mean = halfnorm.rvs(loc=loc[0], scale=scale[0])
-    # guessing_distribution_sd = halfnorm.rvs(loc=loc[1], scale=scale[1])
 
-    for t in range(num_steps):
-        guessing_state = np.random.binomial(1, theta_t[t, 3])
+    for t in range(num_steps[0]):
+        guessing_state = np.random.binomial(1, params[t][0][3])
         if guessing_state == 1:
             guessing_direction = np.random.binomial(1, 0.5)
             if guessing_direction == 1:
-                rt[t] = np.random.normal(theta_t[t, 4], theta_t[t, 5])
-                # rt[t] = np.random.normal(guessing_distribution_mean, guessing_distribution_sd)
+                rt[t] = np.random.normal(params[t][1][0], params[t][1][1])
             else:
-                rt[t] = -np.random.normal(theta_t[t, 4], theta_t[t, 5])
-                # rt[t] = -np.random.normal(guessing_distribution_mean, guessing_distribution_sd)
+                rt[t] = -np.random.normal(params[t][1][0], params[t][1][1])
         else:
             rt[t] = _sample_diffusion_trial(
-                theta_t[t, 0], theta_t[t, 1], theta_t[t, 2], beta,
+                params[t][0][0], params[t][0][1], params[t][0][2], beta,
                 dt=dt, s=s, max_iter=max_iter)
     return rt

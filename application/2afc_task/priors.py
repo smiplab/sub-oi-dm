@@ -62,11 +62,16 @@ def sample_mixture_ddm_params(loc=default_prior_settings['ddm_loc'], scale=defau
 
     diffusion_params = halfnorm.rvs(loc=loc[:3], scale=scale[:3])
     probability = [beta.rvs(a=loc[3], b=scale[3])]
-    guessing_rt_params = halfnorm.rvs(loc=loc[4:], scale=scale[4:])
     
-    params = np.concatenate((diffusion_params, probability), dtype=np.float32)
+    dynamic_params = np.concatenate((diffusion_params, probability), dtype=np.float32)
 
-    return params
+    return dynamic_params
+
+def sample_gamma(loc=default_prior_settings['guess_loc'], scale=default_prior_settings['guess_scale']):
+    
+    gamma = halfnorm.rvs(loc=loc, scale=scale)
+    
+    return gamma
 
 def sample_random_walk(sigma, init_fun, num_steps=80, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.
@@ -102,7 +107,5 @@ def sample_random_walk(sigma, init_fun, num_steps=80, lower_bounds=default_lower
     for t in range(1, num_steps):
         theta_t[t, :4] = np.clip(
             theta_t[t - 1, :4] + sigma * z[t - 1], lower_bounds, upper_bounds
-        )
-    for t in range(1, num_steps):
-        theta_t[t, 4:] = theta_t[0, 4:] 
+        ) 
     return theta_t
