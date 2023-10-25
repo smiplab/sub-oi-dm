@@ -79,7 +79,7 @@ def sample_random_walk_diffusion_process(theta_t, beta=0.5, dt=0.001, s=1.0, max
             dt=dt, s=s, max_iter=max_iter)
     return rt
 
-@njit
+# @njit
 def sample_random_walk_mixture_diffusion_process(params, beta=0.5, dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single simulation from a mixture model. Response times are generated as a guess or as a 
     non-stationary Diffusion decision process with parameters following a random walk. Probability to guess
@@ -108,20 +108,21 @@ def sample_random_walk_mixture_diffusion_process(params, beta=0.5, dt=0.001, s=1
         Response time samples from the Random Walk Mixture Diffusion decision process.
         Reaching the lower boundary results in negative rt's.
     """
-
-    num_steps = params[0][0].shape
+    theta_t = params[0]
+    gamma = params[1]
+    num_steps = theta_t.shape[0]
     rt = np.zeros(num_steps)
 
-    for t in range(num_steps[0]):
-        guessing_state = np.random.binomial(1, params[t][0][3])
+    for t in range(num_steps):
+        guessing_state = np.random.binomial(1, theta_t[t, 3])
         if guessing_state == 1:
             guessing_direction = np.random.binomial(1, 0.5)
             if guessing_direction == 1:
-                rt[t] = np.random.normal(params[t][1][0], params[t][1][1])
+                rt[t] = np.random.normal(gamma[0], gamma[1])
             else:
-                rt[t] = -np.random.normal(params[t][1][0], params[t][1][1])
+                rt[t] = -np.random.normal(gamma[0], gamma[1])
         else:
             rt[t] = _sample_diffusion_trial(
-                params[t][0][0], params[t][0][1], params[t][0][2], beta,
+                theta_t[t, 0], theta_t[t, 1], theta_t[t, 2], beta,
                 dt=dt, s=s, max_iter=max_iter)
     return rt

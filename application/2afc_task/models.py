@@ -169,7 +169,7 @@ class RandomWalkMixtureDiffusion(DiffusionModel):
         self.prior = bf.simulation.TwoLevelPrior(
             hyper_prior_fun=sample_scale,
             local_prior_fun=partial(sample_random_walk, init_fun=sample_mixture_ddm_params, rng=self._rng),
-            shared_prior_fun=partial(sample_gamma), # added
+            shared_prior_fun=sample_gamma, # added
         )
 
         # Create simulator wrapper
