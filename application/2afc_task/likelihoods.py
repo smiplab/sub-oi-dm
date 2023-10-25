@@ -108,7 +108,8 @@ def sample_random_walk_mixture_diffusion_process(params, beta=0.5, dt=0.001, s=1
         Response time samples from the Random Walk Mixture Diffusion decision process.
         Reaching the lower boundary results in negative rt's.
     """
-
+    print(params[0].shape)
+    print(params[1].shape)
     num_steps = params[0][0].shape
     rt = np.zeros(num_steps)
 
@@ -117,11 +118,11 @@ def sample_random_walk_mixture_diffusion_process(params, beta=0.5, dt=0.001, s=1
         if guessing_state == 1:
             guessing_direction = np.random.binomial(1, 0.5)
             if guessing_direction == 1:
-                rt[t] = np.random.normal(params[t][1][0], params[t][1][1])
+                rt[t] = np.random.normal(params[1][0], params[1][1])
             else:
-                rt[t] = -np.random.normal(params[t][1][0], params[t][1][1])
+                rt[t] = -np.random.normal(params[1][0], params[1][1])
         else:
             rt[t] = _sample_diffusion_trial(
-                params[t][0][0], params[t][0][1], params[t][0][2], beta,
+                params[0][t][0], params[0][t][1], params[0][t][2], beta,
                 dt=dt, s=s, max_iter=max_iter)
     return rt
