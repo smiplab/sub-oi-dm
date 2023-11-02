@@ -233,6 +233,7 @@ class RandomWalkMixtureDiffusion(DiffusionModel):
             out_dict = dict(
                 local_parameters=(theta_t - self.local_prior_means) / self.local_prior_stds,
                 hyper_parameters=((scales - self.hyper_prior_mean) / self.hyper_prior_std).astype(np.float32),
+                shared_parameters=gamma,
                 summary_conditions=rt,
             )
         else:
