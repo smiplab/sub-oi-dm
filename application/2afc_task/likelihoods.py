@@ -118,9 +118,13 @@ def sample_random_walk_mixture_diffusion_process(params, beta=0.5, dt=0.001, s=1
         if guessing_state == 1:
             guessing_direction = np.random.binomial(1, 0.5)
             if guessing_direction == 1:
-                rt[t] = np.random.normal(gamma[0], gamma[1])
+                myclip_a, myclip_b = 0, 1
+                a, b = (myclip_a - gamma[0]) / gamma[1], (myclip_b - gamma[0]) / gamma[1]
+                rt[t] = truncnorm.rvs(a, b, loc=gamma[0], scale=gamma[1])
             else:
-                rt[t] = -np.random.normal(gamma[0], gamma[1])
+                myclip_a, myclip_b = 0, 1
+                a, b = (myclip_a - gamma[0]) / gamma[1], (myclip_b - gamma[0]) / gamma[1]
+                rt[t] = -truncnorm.rvs(a, b, loc=gamma[0], scale=gamma[1])
         else:
             rt[t] = _sample_diffusion_trial(
                 theta_t[t, 0], theta_t[t, 1], theta_t[t, 2], beta,

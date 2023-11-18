@@ -1,4 +1,4 @@
-from scipy.stats import halfnorm, beta
+from scipy.stats import halfnorm, beta, truncnorm
 import numpy as np
 
 from configuration import default_prior_settings, default_lower_bounds, default_upper_bounds
@@ -68,12 +68,16 @@ def sample_mixture_ddm_params(loc=default_prior_settings['ddm_loc'], scale=defau
     return dynamic_params
 
 def sample_gamma(loc=default_prior_settings['guess_loc'], scale=default_prior_settings['guess_scale']):
+    # prepare values for truncnorm
+    myclip_a = 0
+    myclip_b = 2   # pretty arbitrary number, doesn't change much
+    a, b = (myclip_a - loc[0]) / scale[0], (myclip_b - loc[0]) / scale[0]
     
-    gamma = halfnorm.rvs(loc=loc, scale=scale)
+    gamma = truncnorm.rvs(a, b, loc=loc[0], scale=scale[0]), halfnorm.rvs(loc=loc[1], scale=scale[1])
     
     return gamma
 
-def sample_random_walk(sigma, init_fun, num_steps=80, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
+def sample_random_walk(sigma, init_fun, num_steps=100, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.
 
     Parameters:

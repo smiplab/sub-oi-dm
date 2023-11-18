@@ -19,13 +19,13 @@ default_bayesflow_settings = {
 
 default_prior_settings = {
     # dynamic parameters: v, a, tau, p
-    "ddm_loc": (0.0, 0.0, 0.0, 1.0),        # a and b of beta distribution (for p)
-    "ddm_scale": (2.5, 2.5, 1.0, 30),       # a and b of beta distribution (for p)
+    "ddm_loc": (0.0, 0.0, 0.0, 1.0),        # for p: a of beta distribution
+    "ddm_scale": (2.5, 2.5, 1.0, 30),       # for p: b of beta distribution
     "scale_loc": (0.0, 0.0, 0.0, 0.0),           
     "scale_scale": (0.1, 0.1, 0.01, 0.01),
     # guessig (stationary) parameters: mu, sigma
-    "guess_loc": (0.0, 0.3),                
-    "guess_scale": (0.0, 0.1)
+    "guess_loc": (0.3, 0.0),                
+    "guess_scale": (0.1, 0.1)
 }
 
 default_lower_bounds = (0.0, 0.0, 0.0, 0.0)
