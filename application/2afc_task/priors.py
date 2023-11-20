@@ -70,7 +70,7 @@ def sample_mixture_ddm_params(loc=default_prior_settings['ddm_loc'], scale=defau
 def sample_gamma(loc=default_prior_settings['guess_loc'], scale=default_prior_settings['guess_scale']):
     # prepare values for truncnorm
     myclip_a = 0
-    myclip_b = 2   # pretty arbitrary number, doesn't change much
+    myclip_b = 1   # pretty arbitrary number, doesn't change much
     a, b = (myclip_a - loc[0]) / scale[0], (myclip_b - loc[0]) / scale[0]
     
     gamma = truncnorm.rvs(a, b, loc=loc[0], scale=scale[0]), halfnorm.rvs(loc=loc[1], scale=scale[1])

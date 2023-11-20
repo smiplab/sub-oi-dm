@@ -117,13 +117,11 @@ def sample_random_walk_mixture_diffusion_process(params, beta=0.5, dt=0.001, s=1
         guessing_state = np.random.binomial(1, theta_t[t, 3])
         if guessing_state == 1:
             guessing_direction = np.random.binomial(1, 0.5)
+            myclip_a, myclip_b = 0, 2
+            a, b = (myclip_a - gamma[0]) / gamma[1], (myclip_b - gamma[0]) / gamma[1]
             if guessing_direction == 1:
-                myclip_a, myclip_b = 0, 1
-                a, b = (myclip_a - gamma[0]) / gamma[1], (myclip_b - gamma[0]) / gamma[1]
                 rt[t] = truncnorm.rvs(a, b, loc=gamma[0], scale=gamma[1])
             else:
-                myclip_a, myclip_b = 0, 1
-                a, b = (myclip_a - gamma[0]) / gamma[1], (myclip_b - gamma[0]) / gamma[1]
                 rt[t] = -truncnorm.rvs(a, b, loc=gamma[0], scale=gamma[1])
         else:
             rt[t] = _sample_diffusion_trial(
