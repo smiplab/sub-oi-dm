@@ -14,16 +14,16 @@ class Experiment(ABC):
     def __init__(self, model, *args, **kwargs):
         pass
 
-    def run(self, epochs=75, iterations_per_epoch=1000, batch_size=16):
+    def run(self, epochs=100, iterations_per_epoch=1000, batch_size=32):
         """Wrapper for online training
 
         Parameters:
         -----------
-        epochs: int, optional, default: 75
+        epochs: int, optional, default: 100
             Number of trainig epochs.
         iterations_per_epoch, int, optional, default: 1000
             Number of iterations per epoch.
-        batch_size: int, optional, default: 16
+        batch_size: int, optional, default: 32
             Number of simulated data sets per batch.
 
         Returns:
@@ -37,7 +37,7 @@ class Experiment(ABC):
 
 
 class RandomWalkDiffusionExperiment(Experiment):
-    """Wrapper for estimating the Non-Stationary Diffusion Decision Model with 
+    """Wrapper for estimating the Non-Stationary Diffusion Decision Model with
     a Gaussian random walk transition model neural superstatistics method."""
 
     def __init__(self, model, config=default_bayesflow_settings):
@@ -54,7 +54,7 @@ class RandomWalkDiffusionExperiment(Experiment):
             ``lstm1_hidden_units``        - The dimensions of the first LSTM of the first summary net
             ``lstm2_hidden_units``        - The dimensions of the second LSTM of the first summary net
             ``lstm3_hidden_units``        - The dimensions of the third LSTM of the second summary net
-            ``trainer``                   - The settings for the ``bf.trainers.Trainer``, not icnluding   
+            ``trainer``                   - The settings for the ``bf.trainers.Trainer``, not icnluding
                 the ``amortizer``, ``generative_model``, and ``configurator`` keys,
                 as these will be provided internaly by the Experiment instance
         """
@@ -115,7 +115,7 @@ class RandomWalkDiffusionExperiment(Experiment):
 
 
 class RandomWalkMixtureDiffusionExperiment(Experiment):
-    """Wrapper for estimating the Non-Stationary Diffusion Decision Model with 
+    """Wrapper for estimating the Non-Stationary Diffusion Decision Model with
     a Gaussian random walk transition model neural superstatistics method."""
 
     def __init__(self, model, summary_network_type="smoothing", checkpoint_path=None, config=default_bayesflow_settings):
@@ -132,7 +132,7 @@ class RandomWalkMixtureDiffusionExperiment(Experiment):
             ``lstm1_hidden_units``        - The dimensions of the first LSTM of the first summary net
             ``lstm2_hidden_units``        - The dimensions of the second LSTM of the first summary net
             ``lstm3_hidden_units``        - The dimensions of the third LSTM of the second summary net
-            ``trainer``                   - The settings for the ``bf.trainers.Trainer``, not icnluding   
+            ``trainer``                   - The settings for the ``bf.trainers.Trainer``, not icnluding
                 the ``amortizer``, ``generative_model``, and ``configurator`` keys,
                 as these will be provided internaly by the Experiment instance
         """
