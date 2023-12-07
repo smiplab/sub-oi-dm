@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit
+from scipy.stats import truncnorm
 
 @njit
 def _sample_diffusion_trial(v, a, tau, beta, dt=0.001, s=1.0, max_iter=1e5):
@@ -74,8 +75,8 @@ def sample_random_walk_diffusion_process(theta_t, context, dt=0.001, s=1.0, max_
             dt=dt, s=s, max_iter=max_iter)
     return rt
 
-@njit
-def sample_random_walk_mixture_diffusion_process(theta_t, context, dt=0.001, s=1.0, max_iter=1e5):
+# @njit
+def sample_random_walk_mixture_diffusion_process(params, context, dt=0.001, s=1.0, max_iter=1e5):
     """Generates a single simulation from a non-stationary
     Diffusion decision process with a parameters following a random walk.
 
@@ -101,15 +102,23 @@ def sample_random_walk_mixture_diffusion_process(theta_t, context, dt=0.001, s=1
         Reaching the lower boundary results in negative rt's.
     """
     
+    theta_t = params[0]
+    gamma = params[1]
     num_steps = theta_t.shape[0]
     rt = np.zeros(num_steps)
-
+    
     for t in range(num_steps):
         guessing_state = np.random.binomial(1, theta_t[t, 5])
         if guessing_state == 1:
-            rt[t] = np.random.uniform(0, 300)
+            guessing_direction = np.random.binomial(1, 0.5)
+            myclip_a, myclip_b = 0, 2
+            a, b = (myclip_a - gamma[0]) / gamma[1], (myclip_b - gamma[0]) / gamma[1]
+            if guessing_direction == 1:
+                rt[t] = truncnorm.rvs(a, b, loc=gamma[0], scale=gamma[1])
+            else:
+                rt[t] = -truncnorm.rvs(a, b, loc=gamma[0], scale=gamma[1])
         else:
             rt[t] = _sample_diffusion_trial(
-                theta_t[t, context[t]], theta_t[t, 2], theta_t[t, 3], theta_t[t, 4],
+                theta_t[t, context[t]], theta_t[t, 2], theta_t[t, 3], theta_t[t, 4], 
                 dt=dt, s=s, max_iter=max_iter)
     return rt

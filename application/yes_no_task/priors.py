@@ -55,11 +55,21 @@ def sample_mixture_ddm_params():
     a = truncnorm.rvs(a=0, b=np.inf, loc=0.0, scale=2.5)
     tau = truncnorm.rvs(a=0, b=np.inf, loc=0.0, scale=1)
     bias = beta.rvs(a=50, b=50)
-    p = beta.rvs(a=1, b=30) # added --> do i need different values?
+    p_0 = beta.rvs(a=1, b=30) # added --> do i need different values?
 
-    return np.concatenate(([v_1], [v_2], [a], [tau], [bias], [p]))
+    return np.concatenate(([v_1], [v_2], [a], [tau], [bias], [p_0]))
 
-def sample_random_walk(sigma, num_steps=112, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
+def sample_gamma(loc=default_prior_settings['guess_loc'], scale=default_prior_settings['guess_scale']):
+    # prepare values for truncnorm
+    myclip_a = 0
+    myclip_b = 1   # pretty arbitrary number, doesn't change much
+    a, b = (myclip_a - loc[0]) / scale[0], (myclip_b - loc[0]) / scale[0]
+    
+    gamma = truncnorm.rvs(a, b, loc=loc[0], scale=scale[0]), halfnorm.rvs(loc=loc[1], scale=scale[1])
+    
+    return gamma
+
+def sample_random_walk(sigma, init_fun, num_steps=112, lower_bounds=default_lower_bounds, upper_bounds=default_upper_bounds, rng=None):
     """Generates a single simulation from a random walk transition model.
 
     Parameters:
@@ -87,11 +97,11 @@ def sample_random_walk(sigma, num_steps=112, lower_bounds=default_lower_bounds, 
         rng = np.random.default_rng()
     # Sample initial parameters
     theta_t = np.zeros((num_steps, 6))
-    theta_t[0] = sample_mixture_ddm_params()
+    theta_t[0] = init_fun()
     # Run random walk from initial
     z = rng.normal(size=(num_steps - 1, 6))
     for t in range(1, num_steps):
-        theta_t[t] = np.clip(
-            theta_t[t - 1] + sigma * z[t - 1], lower_bounds, upper_bounds
+        theta_t[t, :6] = np.clip(
+            theta_t[t - 1, :6] + sigma * z[t - 1], lower_bounds, upper_bounds
         )
     return theta_t

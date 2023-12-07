@@ -18,8 +18,12 @@ default_bayesflow_settings = {
 }
 
 default_prior_settings = {
+    # loc is hard-coded in priors.py
     "scale_loc": (0.0, 0.0, 0.0, 0.0, 0.0, 0.0),       # added value like in 2afc
-    "scale_scale": (0.1, 0.1, 0.1, 0.01, 0.01, 0.01)   # added value like in 2afc
+    "scale_scale": (0.1, 0.1, 0.1, 0.01, 0.01, 0.01),   # added value like in 2afc
+    # guessig (stationary) parameters: mu, sigma
+    "guess_loc": (0.3, 0.0),                
+    "guess_scale": (0.1, 0.1)
 }
 
 default_lower_bounds = (0.0, -6.0, 0.0, 0.0, 0.0, 0.0) # added lower bound 0 for guessing probability

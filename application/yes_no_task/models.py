@@ -4,8 +4,8 @@ import numpy as np
 import bayesflow as bf
 from scipy.stats import halfnorm
 
-from likelihoods import sample_random_walk_diffusion_process
-from priors import sample_scale, sample_random_walk
+from likelihoods import sample_random_walk_mixture_diffusion_process
+from priors import sample_scale, sample_random_walk, sample_mixture_ddm_params, sample_gamma
 from context import generate_context
 from configuration import default_prior_settings
 
@@ -169,20 +169,25 @@ class RandomWalkMixtureDiffusion(DiffusionModel):
         if rng is None:
             rng = np.random.default_rng()
         self._rng = rng
+        
         # Create prior wrapper
         self.prior = bf.simulation.TwoLevelPrior(
             hyper_prior_fun=sample_scale,
-            local_prior_fun=partial(sample_random_walk, rng=self._rng),
+            local_prior_fun=partial(sample_random_walk, init_fun=sample_mixture_ddm_params, rng=self._rng),
+            shared_prior_fun=sample_gamma, # added
             )
+        
         # Create context wrapper
         self.context = bf.simulation.ContextGenerator(
             batchable_context_fun=generate_context,
             )
+        
         # Create simulator wrapper
         self.likelihood = bf.simulation.Simulator(
-            simulator_fun=sample_random_walk_diffusion_process,
+            simulator_fun=sample_random_walk_mixture_diffusion_process,
             context_generator=self.context,
             )
+        
         # Create generative model wrapper. Will generate 3D tensors
         self.generator = bf.simulation.TwoLevelGenerativeModel(
             prior=self.prior,
@@ -233,6 +238,7 @@ class RandomWalkMixtureDiffusion(DiffusionModel):
         # Extract relevant simulation data, convert to float32, and add extra dimension
         theta_t = raw_dict.get("local_prior_draws")
         scales = raw_dict.get("hyper_prior_draws")
+        gamma = raw_dict.get("shared_prior_draws").astype(np.float32) # added
         rt = raw_dict.get("sim_data")[..., None]
         context = np.array(raw_dict.get("sim_batchable_context"))[:, :, None]
 
@@ -240,12 +246,14 @@ class RandomWalkMixtureDiffusion(DiffusionModel):
             out_dict = dict(
                 local_parameters=((theta_t - self.local_prior_means) / self.local_prior_stds).astype(np.float32),
                 hyper_parameters=((scales - self.hyper_prior_mean) / self.hyper_prior_std).astype(np.float32),
+                shared_parameters=gamma,
                 summary_conditions=np.c_[rt, context].astype(np.float32),
             )
         else:
             out_dict = dict(
                 local_parameters=theta_t.astype(np.float32),
                 hyper_parameters=scales.astype(np.float32),
+                shared_parameters=gamma,
                 summary_conditions=np.c_[rt, context].astype(np.float32),
             )
 

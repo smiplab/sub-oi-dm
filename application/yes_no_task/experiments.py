@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 import bayesflow as bf
 import tensorflow as tf
 
+from tensorflow.keras.layers import LSTM, Bidirectional
+from tensorflow.keras.models import Sequential
+
 from configuration import default_bayesflow_settings
 
 class Experiment(ABC):
@@ -110,7 +113,7 @@ class RandomWalkMixtureDiffusionExperiment(Experiment):
     """Wrapper for estimating the Non-Stationary Diffusion Decision Model with 
     a Gaussian random walk transition model neural superstatistics method."""
 
-    def __init__(self, model, checkpoint_path=None, config=default_bayesflow_settings):
+    def __init__(self, model,  summary_network_type="smoothing", checkpoint_path=None, config=default_bayesflow_settings):
         """Creates an instance of the model with given configuration. When used in a BayesFlow pipeline,
         only the attribute ``self.generator`` and the method ``self.configure`` should be used.
 
@@ -130,32 +133,49 @@ class RandomWalkMixtureDiffusionExperiment(Experiment):
         """
 
         self.model = model
+        
+        if summary_network_type == "smoothing":
+            self.summary_network = bf.networks.HierarchicalNetwork([
+                Sequential([
+                    Bidirectional(LSTM(config["lstm1_hidden_units"], return_sequences=True)),
+                    Bidirectional(LSTM(config["lstm2_hidden_units"], return_sequences=True)),
+                ]),
+                Sequential([Bidirectional(LSTM(config["lstm3_hidden_units"]))])
+            ])
+        if summary_network_type == "filtering":
+            self.summary_network = bf.networks.HierarchicalNetwork([
+                Sequential([
+                    LSTM(config["lstm1_hidden_units"], return_sequences=True),
+                    LSTM(config["lstm2_hidden_units"], return_sequences=True),
+                ]),
+                Sequential([LSTM(config["lstm3_hidden_units"])])
+            ])
 
         # Two-level summary network -> reduce 3D into 3D and 2D
         # for local and global amortizer, respectively
-        self.summary_network = bf.networks.HierarchicalNetwork(
-            [
-                tf.keras.Sequential(
-                    [
-                        tf.keras.layers.LSTM(
-                            config["lstm1_hidden_units"],
-                            return_sequences=True
-                        ),
-                        tf.keras.layers.LSTM(
-                            config["lstm2_hidden_units"],
-                            return_sequences=True
-                        ),
-                    ]
-                ),
-                tf.keras.Sequential(
-                    [
-                        tf.keras.layers.LSTM(
-                            config["lstm3_hidden_units"]
-                        )
-                    ]
-                )
-            ]
-        )
+#         self.summary_network = bf.networks.HierarchicalNetwork(
+#             [
+#                 tf.keras.Sequential(
+#                     [
+#                         tf.keras.layers.LSTM(
+#                             config["lstm1_hidden_units"],
+#                             return_sequences=True
+#                         ),
+#                         tf.keras.layers.LSTM(
+#                             config["lstm2_hidden_units"],
+#                             return_sequences=True
+#                         ),
+#                     ]
+#                 ),
+#                 tf.keras.Sequential(
+#                     [
+#                         tf.keras.layers.LSTM(
+#                             config["lstm3_hidden_units"]
+#                         )
+#                     ]
+#                 )
+#             ]
+#         )
 
         self.local_net = bf.amortizers.AmortizedPosterior(
             bf.networks.InvertibleNetwork(
@@ -165,7 +185,7 @@ class RandomWalkMixtureDiffusionExperiment(Experiment):
 
         self.global_net = bf.amortizers.AmortizedPosterior(
             bf.networks.InvertibleNetwork(
-                num_params=6,
+                num_params=6+2,
                 **config.get("global_amortizer_settings")
             ))
 
