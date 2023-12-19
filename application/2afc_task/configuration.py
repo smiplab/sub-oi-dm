@@ -24,8 +24,8 @@ default_prior_settings = {
     "scale_loc": (0.0, 0.0, 0.0, 0.0),           
     "scale_scale": (0.1, 0.1, 0.01, 0.01),
     # guessig (stationary) parameters: mu, sigma
-    "guess_loc": (0.3, 0.0),                
-    "guess_scale": (0.1, 0.1)
+    "guess_loc": (0.23, 0.0),                
+    "guess_scale": (0.1, 0.05)
 }
 
 default_lower_bounds = (0.0, 0.0, 0.0, 0.0)
